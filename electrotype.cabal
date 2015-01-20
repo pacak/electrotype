@@ -1,5 +1,5 @@
 Name:                electrotype
-Version:             0.1.0.0
+Version:             0.1.0.1
 Synopsis:            Reasonably fast text rendering in OpenGL.
 
 Description:         Use FreeType to render glyph bitmaps to textures, and
