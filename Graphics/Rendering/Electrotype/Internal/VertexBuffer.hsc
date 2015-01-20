@@ -2,7 +2,9 @@
 module Graphics.Rendering.Electrotype.Internal.VertexBuffer
 ( VertexBuffer
 , newVertexBuffer, destroyVertexBuffer
-, clearVertexBuffer, insertString, insertByteString
+, clearVertexBuffer
+, measureStringWidth, measureByteStringWidth
+, insertString, insertByteString
 , renderVertexBuffer
 ) where
 
@@ -52,6 +54,20 @@ foreign import ccall unsafe "vertex_buffer_add_char8_len"
         :: Ptr VertexBufferRef -> Ptr TextureFontRef -> Ptr CChar -> CSize
         -> Ptr (V4 Float) -> Ptr (V2 Float) -> IO ()
 
+foreign import ccall unsafe "measure_horizontal_text"
+    c_measure_horizontal_text
+        :: Ptr TextureFontRef -> CWString -> IO Float
+
+foreign import ccall unsafe "measure_horizontal_char8_len"
+    c_measure_horizontal_char8_len
+        :: Ptr TextureFontRef -> Ptr CChar -> CSize -> IO Float
+
+measureStringWidth :: TextureFont -> String -> IO Float
+measureStringWidth (TextureFont _ fontRef) str =
+    withForeignPtr fontRef $ \fontPtr ->
+    withCWString str $ \cwstr -> do
+    c_measure_horizontal_text fontPtr cwstr
+
 insertString
     :: VertexBuffer
     -- ^ Vertex buffer to insert text into.
@@ -73,6 +89,12 @@ insertString (VertexBuffer vertexRef) (TextureFont _ fontRef) str color pos =
     withCWString str $ \cwstr -> do
     c_vertex_buffer_add_text vertexPtr fontPtr cwstr colorPtr posPtr 
     peek posPtr
+
+measureByteStringWidth :: TextureFont -> B.ByteString -> IO Float
+measureByteStringWidth (TextureFont _ fontRef) str =
+    withForeignPtr fontRef $ \fontPtr ->
+    B.unsafeUseAsCStringLen str $ \(charPtr, len) -> do
+    c_measure_horizontal_char8_len fontPtr charPtr (fromIntegral len)
 
 insertByteString
     :: VertexBuffer
