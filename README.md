@@ -21,7 +21,7 @@ There are 3 primary goals:
    changing text, this is slower than using cached glyphs and a texture atlas,
    but more flexible in terms of layout and the number of glyphs.
 
-3. Work in OpenGL 3.2 Core, and don't require scattering across an installation
+3. Work in OpenGL 2.1, and don't require scattering across an installation
    various resource files, such as shaders and fonts.
 
 ## Installation
